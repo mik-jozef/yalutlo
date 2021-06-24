@@ -1,4 +1,4 @@
-import { SyntaxTreeNode, MergedTokens, Caten, Or, Match, Repeat, Token, IdentifierToken } from "lr-parser-typescript";
+import { SyntaxTreeNode, MergedTokens, Caten, Or, Match, Repeat, Token, IdentifierToken, Maybe } from "lr-parser-typescript";
 
 import { token } from "./tokenizer.js";
 
@@ -79,10 +79,16 @@ export class MacroCall extends SyntaxTreeNode {
   
   static rule = new Caten(
     new Match( false, 'name', token('identifier') ),
-    new Repeat(
+    new Maybe(
       new Caten(
-        new Match( true, 'args', TermLadder ),
-        token(','),
+        token('('),
+        new Repeat(
+          new Caten(
+            new Match( true, 'args', TermLadder ),
+            token(','),
+          ),
+        ),
+        token(')'),
       ),
     ),
   );

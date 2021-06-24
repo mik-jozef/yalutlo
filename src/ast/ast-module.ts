@@ -1,4 +1,4 @@
-import { SyntaxTreeNode, Caten, Match, Or, Repeat, IdentifierToken } from 'lr-parser-typescript';
+import { SyntaxTreeNode, Caten, Match, Or, Repeat, IdentifierToken, Maybe } from 'lr-parser-typescript';
 
 import { token } from './tokenizer.js';
 import { Import } from './import.js';
@@ -8,11 +8,24 @@ import { Prop, PropLadder } from './prop.js';
 
 class PropVariable extends SyntaxTreeNode {
   name!: IdentifierToken;
+  params!: IdentifierToken[];
   value!: Prop;
   
   static rule = new Caten(
     token('prop'),
     new Match( false, 'name', token('identifier') ),
+    new Maybe(
+      new Caten(
+        token('('),
+        new Repeat(
+          new Caten(
+            new Match( true, 'params', token('identifier') ),
+            token(','),
+          ),
+        ),
+        token(')'),
+      ),
+    ),
     token('='),
     new Match( false, 'value', PropLadder ),
     token(';'),
@@ -21,11 +34,24 @@ class PropVariable extends SyntaxTreeNode {
 
 class SetVariable extends SyntaxTreeNode {
   name!: IdentifierToken;
+  params!: IdentifierToken[];
   value!: Term;
   
   static rule = new Caten(
     token('let'),
     new Match( false, 'name', token('identifier') ),
+    new Maybe(
+      new Caten(
+        token('('),
+        new Repeat(
+          new Caten(
+            new Match( true, 'params', token('identifier') ),
+            token(','),
+          ),
+        ),
+        token(')'),
+      ),
+    ),
     token('='),
     new Match( false, 'value', TermLadder ),
     token(';'),
