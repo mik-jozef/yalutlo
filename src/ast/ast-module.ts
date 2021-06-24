@@ -4,9 +4,30 @@ import { token } from './tokenizer.js';
 import { Import } from './import.js';
 import { Term, TermLadder } from './term.js';
 import { Prop, PropLadder } from './prop.js';
+import { Proof, ProofLadder } from './proof.js';
 
 
 class PropVariable extends SyntaxTreeNode {
+  name!: IdentifierToken;
+  value!: Prop;
+  proof!: Proof;
+  
+  static rule = new Caten(
+    token('prop'),
+    new Match( false, 'name', token('identifier') ),
+    token('='),
+    new Match( false, 'value', PropLadder ),
+    new Maybe(
+      new Caten(
+        token('by'),
+        new Match( false, 'proof', ProofLadder ),
+      ),
+    ),
+    token(';'),
+  );
+}
+
+class PropFunction extends SyntaxTreeNode {
   name!: IdentifierToken;
   params!: IdentifierToken[];
   value!: Prop;
@@ -14,18 +35,16 @@ class PropVariable extends SyntaxTreeNode {
   static rule = new Caten(
     token('prop'),
     new Match( false, 'name', token('identifier') ),
-    new Maybe(
+    token('('),
+    new Repeat(
       new Caten(
-        token('('),
-        new Repeat(
-          new Caten(
-            new Match( true, 'params', token('identifier') ),
-            token(','),
-          ),
-        ),
-        token(')'),
+        new Match( true, 'params', token('identifier') ),
+        token(','),
       ),
+      new Caten(),
+      1,
     ),
+    token(')'),
     token('='),
     new Match( false, 'value', PropLadder ),
     token(';'),
@@ -69,6 +88,7 @@ export class AstModule extends SyntaxTreeNode {
     new Repeat(
       new Or(
         new Match( true, 'defs', PropVariable ),
+        new Match( true, 'defs', PropFunction ),
         new Match( true, 'defs', SetVariable ),
       ),
     ),
