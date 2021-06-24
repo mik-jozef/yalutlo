@@ -1,7 +1,7 @@
 import { SyntaxTreeNode, Caten, Or, Match, Repeat, Token, IdentifierToken } from "lr-parser-typescript";
 
 import { token } from "./tokenizer.js";
-import { Term, TermLadder, MacroCall, equalsMacroCallOp } from "./term.js";
+import { Term, TermLadder, MacroCall, equalsMacroCall, equalsParenthesizedMacroCall } from "./term.js";
 
 
 const equalsQuantifierProp = new Match( false, 'value', null! );
@@ -29,15 +29,24 @@ export class BottomOfPropLadder extends SyntaxTreeNode {
   static hidden = true;
   
   static rule = new Or(
-    equalsMacroCallOp,
+    equalsMacroCall,
     equalsQuantifierProp,
     equalsInProp,
     equalsEqProp,
-    /*new Caten(
+    new Caten(
       token('('),
-      equalsPropLadder,
+      new Or(
+        equalsQuantifierProp,
+        equalsInProp,
+        equalsEqProp,
+        equalsNegationProp,
+        equalsAndProp,
+        equalsOrProp,
+        equalsImplicationProp,
+      ),
       token(')'),
-    ),*/// TODO
+    ),
+    equalsParenthesizedMacroCall,
   );
 }
 

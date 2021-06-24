@@ -3,7 +3,8 @@ import { SyntaxTreeNode, MergedTokens, Caten, Or, Match, Repeat, Token, Identifi
 import { token } from "./tokenizer.js";
 
 
-export const equalsMacroCallOp = new Match( false, 'value', null! );
+export const equalsMacroCall = new Match( false, 'value', null! );
+export const equalsParenthesizedMacroCall = new Match( false, 'value', null! );
 
 const equalsSetLiteral = new Match( false, 'value', null! );
 const equalsSubstractionOp = new Match( false, 'value', null! );
@@ -26,12 +27,18 @@ export class BottomOfTermLadder extends SyntaxTreeNode {
   
   static rule = new Or(
     equalsSetLiteral,
-    equalsMacroCallOp,
-    /*new Caten(
+    equalsMacroCall,
+    new Caten(
       token('('),
-      equalsTermLadder,
+      new Or(
+        equalsSetLiteral,
+        equalsSubstractionOp,
+        equalsIntersectionOp,
+        equalsUnionOp,
+      ),
       token(')'),
-    ),*/// TODO
+    ),
+    equalsParenthesizedMacroCall,
   );
 }
 
@@ -78,6 +85,17 @@ export class MacroCall extends SyntaxTreeNode {
         token(','),
       ),
     ),
+  );
+}
+
+export class ParenthesizedMacroCall extends SyntaxTreeNode {
+  name!: IdentifierToken;
+  args!: Term[];
+  
+  static rule = new Caten(
+    token('('),
+    new Match( false, 'value', MacroCall ),
+    token(')'),
   );
 }
 
@@ -136,7 +154,9 @@ export class UnionOp extends SyntaxTreeNode {
 
 // The end of the ladder section.
 
-equalsMacroCallOp.match = MacroCall;
+equalsMacroCall.match = MacroCall;
+equalsParenthesizedMacroCall.match = ParenthesizedMacroCall;
+
 equalsSetLiteral.match = SetLiteral;
 equalsSubstractionOp.match = SubstractionOp;
 equalsIntersectionOp.match = IntersectionOp;
