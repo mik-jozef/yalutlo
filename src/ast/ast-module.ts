@@ -1,4 +1,4 @@
-import { SyntaxTreeNode, Caten, Match, Or, Repeat, IdentifierToken, Maybe } from 'lr-parser-typescript';
+import { SyntaxTreeNode, Token, Caten, Match, Or, Repeat, IdentifierToken, Maybe } from 'lr-parser-typescript';
 
 import { token } from './tokenizer.js';
 import { Import } from './import.js';
@@ -7,12 +7,24 @@ import { Prop, PropLadder } from './prop.js';
 import { Proof, ProofLadder } from './proof.js';
 
 
+class MaybeExport extends SyntaxTreeNode {
+  static hidden = true;
+  
+  static rule = new Maybe(
+    new Match( false, 'isExported', token('export') ),
+  );
+}
+
+const matchMaybeExport = new Match( false, 'isExported', MaybeExport );
+
 class PropVariable extends SyntaxTreeNode {
+  isExported!: Token<'export'> | null;
   name!: IdentifierToken;
   value!: Prop;
   proof!: Proof;
   
   static rule = new Caten(
+    matchMaybeExport,
     token('prop'),
     new Match( false, 'name', token('identifier') ),
     token('='),
@@ -28,11 +40,13 @@ class PropVariable extends SyntaxTreeNode {
 }
 
 class PropFunction extends SyntaxTreeNode {
+  isExported!: Token<'export'> | null;
   name!: IdentifierToken;
   params!: IdentifierToken[];
   value!: Prop;
   
   static rule = new Caten(
+    matchMaybeExport,
     token('prop'),
     new Match( false, 'name', token('identifier') ),
     token('('),
@@ -52,11 +66,13 @@ class PropFunction extends SyntaxTreeNode {
 }
 
 class SetVariable extends SyntaxTreeNode {
+  isExported!: Token<'export'> | null;
   name!: IdentifierToken;
   params!: IdentifierToken[];
   value!: Term;
   
   static rule = new Caten(
+    matchMaybeExport,
     token('let'),
     new Match( false, 'name', token('identifier') ),
     new Maybe(
