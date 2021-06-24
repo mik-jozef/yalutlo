@@ -17,6 +17,7 @@ export const tokenizer = new Tokenizer(<const>[
   'Ex',
   'fn',
   'in',
+  '=>',
   '->',
   '<-',
   '||',
