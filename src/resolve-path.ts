@@ -1,6 +1,8 @@
 import { exit, Path, ProjectJson } from "./main.js";
 
 
+const extension = '.ytl';
+
 function resolveLib(
   projectJson: ProjectJson,
   path: Path,
@@ -16,7 +18,7 @@ function resolveLib(
     lib.defaultVersion === null
       && exit(`Library "${pathArr[2]}" does not have a default version.`);
     
-    return path + '/' + lib.defaultVersion + '/-.maslo';
+    return path + '/' + lib.defaultVersion + '/-' + extension;
   }
   
   if (pathArr.length === 4) {
@@ -29,8 +31,8 @@ function resolveLib(
   exit(`Cannot import internal library file "${path}".`);
 }
 
-// All paths are stored as absolute paths, eg `/aaaa/c/a.maslo`, or `/lib/foo.maslo`.
-// (Or perhaps `/stlib/request.maslo`).
+// All paths are stored as absolute paths, eg `/aaaa/c/a.ytl`, or `/lib/foo.ytl`.
+// (Or perhaps `/stlib/request.ytl`).
 export function resolvePath(
   projectJson: ProjectJson,
   path: Path,

@@ -30,15 +30,7 @@ export class ProjectJson {
     [ 'stlib', new Library( 'stlib', [ '0.0.0' ], '0.0.0' ) ],
   ]);
   
-  constructor(stringified: string) {
-    const obj = (() => {
-      try {
-        return JSON.parse(stringified);
-      } catch (e) {
-        exit('Cannot parse `project.json`.');
-      }
-    })();
-    
+  constructor(obj: Record<string, any>) {
     if (!obj.libs || typeof obj.libs !== 'object' || Array.isArray(obj.libs)) {
       exit(`In \`project.json\`, property \`libs\` is missing, or is not an object.`);
     }
@@ -81,17 +73,25 @@ class Main {
   }
   
   async loadProjectJson(): Promise<void> {
-    let file;
+    let obj;
     
     try {
-      file = await promises.readFile(this.projectRoot + '/project.json', 'utf8');
-    } catch (e) {
-      if (e.code === 'ENOENT') exit(`Missing \`project.json\` at \`${this.projectRoot}\`.`);
+      const file = await promises.readFile(this.projectRoot + '/project.json', 'utf8');
       
-      throw e;
+      try {
+        obj = JSON.parse(file);
+      } catch (e) {
+        exit('Cannot parse `project.json`.');
+      }
+    } catch (e) {
+      if (e.code !== 'ENOENT') throw e;
+      
+      obj = {
+        libs: {},
+      };
     }
     
-    this.projectJson = new ProjectJson(file);
+    this.projectJson = new ProjectJson(obj);
   }
   
   async load(at: Path, isAtFolder: boolean, path: Path): Promise<void> {
