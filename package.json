@@ -10,6 +10,7 @@
     "typescript": "^4.3.4"
   },
   "dependencies": {
+    "chalk": "^4.1.1",
     "lr-parser-typescript": "^0.0.2"
   },
   "type": "module"
