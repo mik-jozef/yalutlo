@@ -16,11 +16,14 @@ class MaybeExport extends SyntaxTreeNode {
 
 const matchMaybeExport = new Match( false, 'isExported', MaybeExport );
 
-export class PropVariable extends SyntaxTreeNode {
+export class AstPropVariable extends SyntaxTreeNode {
   isExported!: Token<'export'> | null;
   name!: IdentifierToken;
   value!: Prop;
   proof!: Proof;
+  
+  by!: Token<'by'> | null;
+  sc!: Token<';'>;
   
   static rule = new Caten(
     matchMaybeExport,
@@ -30,15 +33,15 @@ export class PropVariable extends SyntaxTreeNode {
     new Match( false, 'value', PropLadder ),
     new Maybe(
       new Caten(
-        token('by'),
+        new Match( false, 'by', token('by') ),
         new Match( false, 'proof', ProofLadder ),
       ),
     ),
-    token(';'),
+    new Match( false, 'sc', token(';') ),
   );
 }
 
-export class PropFunction extends SyntaxTreeNode {
+export class AstPropFunction extends SyntaxTreeNode {
   isExported!: Token<'export'> | null;
   name!: IdentifierToken;
   params!: IdentifierToken[];
@@ -64,7 +67,7 @@ export class PropFunction extends SyntaxTreeNode {
   );
 }
 
-export class SetVariable extends SyntaxTreeNode {
+export class AstSetVariable extends SyntaxTreeNode {
   isExported!: Token<'export'> | null;
   name!: IdentifierToken;
   params!: IdentifierToken[];
@@ -92,15 +95,15 @@ export class SetVariable extends SyntaxTreeNode {
   );
 }
 
-export type Def = PropVariable | PropFunction | SetVariable;
+export type Def = AstPropVariable | AstPropFunction | AstSetVariable;
 
 export class DefLadder extends SyntaxTreeNode {
   static hidden = true;
   
   static rule = new Or(
-    new Match( true, 'value', PropVariable ),
-    new Match( true, 'value', PropFunction ),
-    new Match( true, 'value', SetVariable ),
+    new Match( false, 'value', AstPropVariable ),
+    new Match( false, 'value', AstPropFunction ),
+    new Match( false, 'value', AstSetVariable ),
   );
 }
 

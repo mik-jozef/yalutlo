@@ -1,8 +1,11 @@
 import { AstModule } from "../ast/ast-module.js";
+import { AstSetVariable } from "../ast/def.js";
 import { Path } from "../main.js";
+import { PropVariable } from "./prop-variable.js";
+import { SetVariable } from "./set-variable.js";
 
 
-type Nameable = never; // TODO prop or set.
+type Variable = PropVariable | SetVariable;
 
 class Import {
   folder: string;
@@ -24,23 +27,46 @@ class Import {
   }
 }
 
-export class Module {
+interface Scope {
+  getModule(): Module;
+}
+
+export class Module implements Scope {
   imports: Import[];
-  defs = new Map<string, Nameable>();
+  defs = new Map<string, Variable>();
+  
+  // Ith line starts at `src[lines[i]]`. Contains one more entry at the end.
+  lines: number[] = [];
+  
+  getModule() { return this }
   
   constructor(
     public path: Path,
     public isFolder: boolean,
-    astModule: AstModule,
+    public ast: AstModule,
+    public src: string,
   ) {
-    this.imports = astModule.imports.map(imp => new Import(imp.path.value, imp.as?.value || null));
+    this.imports = ast.imports.map(imp => new Import(imp.path.value, imp.as?.value || null));
     
-    astModule.defs.forEach(def => {
-      // TODO.
+    const lines = src.split('\n');
+    
+    let i = 0;
+    
+    lines.forEach(line => {
+      this.lines.push(i);
+      
+      i += line.length + 1;
     });
-  }
-  
-  importPaths(): string[] {
-    return [];
+    
+    ast.defs.forEach(def => {
+      if (this.defs.has(def.name.value)) {
+        this.defs.get(def.name.value)!.insert(def);
+      } else {
+        this.defs.set(
+          def.name.value,
+          def instanceof AstSetVariable ? new SetVariable(this, def) : new PropVariable(this, def),
+        );
+      }
+    });
   }
 }

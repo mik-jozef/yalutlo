@@ -1,7 +1,7 @@
 import { exit, Path, ProjectJson } from "./main.js";
 
 
-const extension = '.ytl';
+export const extension = '.ytl';
 
 function resolveLib(
   projectJson: ProjectJson,

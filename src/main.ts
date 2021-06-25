@@ -2,7 +2,7 @@ import { promises } from 'fs';
 import { exit as processExit } from "process";
 import { Parser } from 'lr-parser-typescript';
 
-import { resolvePath } from './resolve-path.js';
+import { extension, resolvePath } from './resolve-path.js';
 import { AstModule } from './ast/ast-module.js';
 import { tokenizer } from './ast/tokenizer.js';
 import { Module } from './yalutlo/module.js';
@@ -139,11 +139,11 @@ class Main {
       exit('Parse error in "' + path + '" at:', astModule);
     }
     
-    const module = new Module(path, isFolderModule, astModule);
+    const module = new Module(path, isFolderModule, astModule, moduleSource);
     
     this.modules.set(path, module);
     
-    await Promise.all(module.importPaths().map(importPath => this.load(path, isFolderModule, importPath)));
+    await Promise.all(module.imports.map(impt => this.load(path, isFolderModule, impt.path)));
   }
   
   async compile() {
@@ -154,7 +154,7 @@ class Main {
   }
 }
 
-const defaultMain = '/main.maslo';
+const defaultMain = '/main' + extension;
 
 if ( 4 <= process.argv.length && process.argv.length < 6 ) {
   new Main( process.argv[2], process.argv[3], process.argv[4] || defaultMain );
