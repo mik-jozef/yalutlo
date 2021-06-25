@@ -19,19 +19,30 @@ export class PropVariable {
   ) {
     this.name = ast.name.value;
     
-    const params = ast instanceof AstPropFunction ? ast.params.length : 0;
-    
-    this.overloads.set(params, new PropVarOverload(ast));
+    this.insert(ast);
   }
   
   insert(def: Def) {
     if (def instanceof AstSetVariable) {
-      printError(
+      return printError(
         this.parentScope.getModule(),
         def.name,
         'A set cannot have the same name as a prop in the same scope.\nThe prop is defined here:',
         [ ...this.overloads.values() ][0].ast.name,
       );
     }
+    
+    const params = def instanceof AstPropFunction ? def.params.length : 0;
+    
+    if (this.overloads.has(params)) {
+      return printError(
+        this.parentScope.getModule(),
+        def.name,
+        `A prop with ${params} parameters is already declared here:`,
+        this.overloads.get(params)!.ast.name,
+      );
+    }
+    
+    this.overloads.set(params, new PropVarOverload(def));
   }
 }
