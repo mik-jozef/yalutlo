@@ -39,7 +39,12 @@ function printToken(module: Module, token: Token<string>) {
 }
 
 function printMsg(msg: string) {
-  console.log(chalk.red('|'), msg);
+  console.log(
+    msg
+      .split('\n')
+      .map(line => chalk.red('| ') + line)
+      .join('\n'),
+  );
 }
 
 export function printError(module: Module, ...tokenOrMsgs: (Token<string> | string)[]) {

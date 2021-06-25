@@ -27,7 +27,7 @@ export class SetVariable {
       printError(
         this.parentScope.getModule(),
         def.name,
-        'A prop cannot have the same name as a set. The set is defined here:',
+        'A prop cannot have the same name as a set in the same scope.\nThe set is defined here:',
         [ ...this.overloads.values() ][0].ast.name,
       );
     }
