@@ -4,28 +4,13 @@ import chalk from "chalk";
 import { Module } from "./yalutlo/module";
 
 
-function isEmpty(str: string): boolean {
-  return !!str.match(/\s*/);
-}
-
 function printToken(module: Module, token: Token<string>) {
-  let startLine = Math.max(0, token.start.line - 1);
-  let endLine = Math.min(module.lines.length, token.end.line + 2);
-  
-  function getLine(lineIndex: number) {
+  for (let lineIndex = token.start.line; lineIndex < token.end.line + 1; lineIndex += 1) {
     const lineStart = module.lines[lineIndex];
     const lineEnd = module.lines[lineIndex + 1];
     const line = module.src.substring(lineStart, lineEnd - 1);
-    
-    return { lineStart, lineEnd, line };
-  }
   
-  if (isEmpty(getLine(startLine).line)) startLine += 1;
-  if (isEmpty(getLine(endLine).line)) endLine -= 1;
-  
-  for (let lineIndex = startLine; lineIndex < endLine; lineIndex += 1) {
-    const { lineStart, line } = getLine(lineIndex);
-    const numSize = ('' + (endLine - 1)).length + 1;
+    const numSize = ('' + token.end.line).length + 1;
     
     console.log(chalk.red('|'), chalk.yellow((lineIndex + ':').padStart(numSize)), line);
     

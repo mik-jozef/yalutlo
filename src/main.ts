@@ -149,6 +149,7 @@ class Main {
   async compile() {
     const out: string[] = [];
     
+    console.log();
     console.log('Writing to:', this.outFile);
     await promises.writeFile(this.outFile, out.join(''));
   }
