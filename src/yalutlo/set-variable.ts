@@ -33,10 +33,12 @@ export class SetVariable {
     }
     
     if (this.overloads.has(def.params.length)) {
+      const s = def.params.length === 1 ? '' : 's';
+      
       return printError(
         this.parentScope.getModule(),
         def.name,
-        `A set with ${def.params.length} parameters is already declared here:`,
+        `A set with ${def.params.length} parameter${s} is already declared here:`,
         this.overloads.get(def.params.length)!.ast.name,
       );
     }

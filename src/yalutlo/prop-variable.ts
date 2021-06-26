@@ -1,4 +1,6 @@
+import { IdentifierToken } from "lr-parser-typescript";
 import { Def, AstSetVariable, AstPropVariable, AstPropFunction } from "../ast/def.js";
+import { MacroCall } from "../ast/term.js";
 import { printError } from "../printError.js";
 import { Module } from "./module.js";
 
@@ -32,17 +34,37 @@ export class PropVariable {
       );
     }
     
-    const params = def instanceof AstPropFunction ? def.params.length : 0;
+    const paramsLength = def instanceof AstPropFunction ? def.params.length : 0;
     
-    if (this.overloads.has(params)) {
+    if (this.overloads.has(paramsLength)) {
+      const s = paramsLength === 1 ? '' : 's';
+      
       return printError(
         this.parentScope.getModule(),
         def.name,
-        `A prop with ${params} parameters is already declared here:`,
-        this.overloads.get(params)!.ast.name,
+        `A prop with ${paramsLength} parameter${s} is already declared here:`,
+        this.overloads.get(paramsLength)!.ast.name,
       );
     }
     
-    this.overloads.set(params, new PropVarOverload(def));
+    this.overloads.set(paramsLength, new PropVarOverload(def));
+    
+    if (paramsLength === 0) {
+      if (def instanceof AstPropFunction) throw new Error('impossible');
+      
+      if (def.value instanceof MacroCall && def.value.name.value == 'False') {
+        return printError(
+          this.parentScope.getModule(),
+          def.name,
+          'Cannot prove \`False`\. \`False\` is 🎉 false 🎉.',
+        );
+      }
+      
+      return printError(
+        this.parentScope.getModule(),
+        def.name,
+        'Cannot prove this proposition. Cannot prove anything at this point.',
+      );
+    }
   }
 }
