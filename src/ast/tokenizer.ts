@@ -2,6 +2,8 @@ import { Tokenizer } from 'lr-parser-typescript';
 
 
 export const tokenizer = new Tokenizer(<const>[
+  'contradiction',
+  'conjencture',
   'identifier',
   'export',
   'import',
