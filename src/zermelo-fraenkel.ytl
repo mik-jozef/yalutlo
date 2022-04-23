@@ -1,0 +1,82 @@
+
+prop Subset( a, b, ) = All x, { x in a -> x in b };
+
+prop SetFunction( f, domain, codomain ) = Ex assignment, {
+  f = { { 0, domain }, { 1, assignment }, { 2, codomain } };
+  
+  All a, {
+    a in assignment -> Ex arg, Ex ret, {
+      a = { { 0, arg }, { 1, ret } };
+      arg in domain;
+      ret in codomain;
+    };
+    
+    a in domain -> Ex asn, {
+      asn in assignment;
+      { 0, a } in asn;
+    };
+    
+    All z0, All z1, {
+        { { 0, a, }, { 1, z0, }, } in assignment
+          &&
+        { { 0, a, }, { 1, z1, }, } in assignment
+            ->
+          z0 = z1;
+        ;
+      };
+    };
+  };
+};
+
+prop SetFunction( f ) = Ex domain, codomain, {
+  SetFunction( f, domain, codomain );
+}
+
+let domain(f: SetFunction) = set where Ex a, Ex c, {
+  f = { { 0, domain, }, { 1, a }, { 2, c, }, };
+}
+
+let apply(f: SetFunction, arg: domain(f)) = set s where Ex assignment, Ex codomain, {
+  f = { { 0, domain(f), }, { 1, assignment, }, { 2, codomain, }, };
+  
+  { { 0, arg, }, { 1, s }, } in assignment;
+};
+
+prop equality = All x, All y, All z, {
+  ( z in x <-> z in y ) -> x = y;
+};
+
+prop regularity = All x, {
+  x != empty -> Ex y, { y in x && x & y = empty; };
+};
+
+// TODO this should probably be handled by the language
+// (with a 'where' clause? nat where (n) Odd(n) )
+// prop specification = ;
+
+prop union = All f, Ex a, All y, All x, {
+  x in y && y in f <-> x in a;
+};
+
+// TODO
+// prop replacement[ let P(...) ] =
+
+prop infinity = Ex x, {
+  empty in x;
+  All y, { y in x -> y | { y } in x; }
+};
+
+prop powerset = All x, {
+  Ex y, All z {
+    Subset(z, x) <-> z in y;
+  }
+};
+
+conjencture choice = All x, {
+  empty !in x -> Ex f, {
+    SetFunction(f, x, union(x) );
+    All a, { a in x -> apply(f, a) in a };
+  }
+};
+
+// conjencture determinacy = TODO;

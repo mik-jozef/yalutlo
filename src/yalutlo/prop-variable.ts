@@ -1,4 +1,3 @@
-import { IdentifierToken } from "lr-parser-typescript";
 import { Def, AstSetVariable, AstPropVariable, AstPropFunction } from "../ast/def.js";
 import { MacroCall } from "../ast/term.js";
 import { printError } from "../printError.js";
@@ -7,6 +6,7 @@ import { Module } from "./module.js";
 
 class PropVarOverload {
   constructor(
+    public variable: PropVariable,
     public ast: AstPropFunction | AstPropVariable,
   ) {}
 }
@@ -47,7 +47,7 @@ export class PropVariable {
       );
     }
     
-    this.overloads.set(paramsLength, new PropVarOverload(def));
+    this.overloads.set(paramsLength, new PropVarOverload(this, def));
     
     if (paramsLength === 0) {
       if (def instanceof AstPropFunction) throw new Error('impossible');

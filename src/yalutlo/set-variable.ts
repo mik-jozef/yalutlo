@@ -5,6 +5,7 @@ import { Module } from "./module.js";
 
 class SetVarOverload {
   constructor(
+    public variable: SetVariable,
     public ast: AstSetVariable,
   ) {}
 }
@@ -43,6 +44,6 @@ export class SetVariable {
       );
     }
     
-    this.overloads.set(def.params.length, new SetVarOverload(def));
+    this.overloads.set(def.params.length, new SetVarOverload(this, def));
   }
 }

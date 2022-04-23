@@ -2,7 +2,7 @@ import { SyntaxTreeNode, IdentifierToken, Token, Caten, Match, Or, Repeat, Maybe
 
 import { token } from './tokenizer.js';
 import { Term, TermLadder } from './term.js';
-import { Prop, PropLadder } from './prop.js';
+import { AstProp, PropLadder } from './prop.js';
 import { Proof, ProofLadder, proofsEqualsDefLadder } from './proof.js';
 
 
@@ -19,7 +19,7 @@ const matchMaybeExport = new Match( false, 'isExported', MaybeExport );
 export class AstPropVariable extends SyntaxTreeNode {
   isExported!: Token<'export'> | null;
   name!: IdentifierToken;
-  value!: Prop;
+  value!: AstProp;
   proof!: Proof;
   
   by!: Token<'by'> | null;
@@ -45,7 +45,7 @@ export class AstPropFunction extends SyntaxTreeNode {
   isExported!: Token<'export'> | null;
   name!: IdentifierToken;
   params!: IdentifierToken[];
-  value!: Prop;
+  value!: AstProp;
   
   static rule = new Caten(
     matchMaybeExport,
@@ -90,7 +90,24 @@ export class AstSetVariable extends SyntaxTreeNode {
       ),
     ),
     token('='),
-    new Match( false, 'value', TermLadder ),
+    new Or(
+      new Match( false, 'value', TermLadder ),
+        new Or(
+          new Caten(
+            token('set'),
+            token('where'),
+            new Match( false, 'TODO', PropCall ),
+            token('exists by'),
+            new Match( false, 'TODO', Proof ),
+          ),
+          new Caten(
+            new Match( false, 'TODO', MacroCall ),
+            token('where'),
+            new Match( false, 'TODO', PropCall ),
+          ),
+        ),
+      ),
+    ),
     token(';'),
   );
 }

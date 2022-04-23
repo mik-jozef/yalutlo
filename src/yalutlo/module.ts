@@ -29,6 +29,8 @@ class Import {
 
 interface Scope {
   getModule(): Module;
+  
+  resolve(name: string): Variable | null;
 }
 
 export class Module implements Scope {
@@ -68,5 +70,15 @@ export class Module implements Scope {
         );
       }
     });
+  }
+  
+  linkImports() {
+    // TODO add imported variables to $defs$.
+  }
+  
+  resolve(name: string) {
+    if (this.defs.has(name)) return this.defs.get(name)!;
+    
+    return null;
   }
 }

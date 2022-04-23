@@ -14,7 +14,7 @@ const equalsImplicationProp = new Match( false, 'value', null! );
 
 const equalsPropLadder = new Match( false, 'value', null! );
 
-export type Prop =
+export type AstProp =
   | QuantifierProp
   | MacroCall
   | InProp
@@ -104,7 +104,7 @@ class QuantifierParam extends SyntaxTreeNode {
 
 export class QuantifierProp extends SyntaxTreeNode {
   params!: QuantifierParam[];
-  props!: Prop[];
+  props!: AstProp[];
   
   static rule = new Caten(
     new Repeat(
@@ -146,7 +146,7 @@ export class EqProp extends SyntaxTreeNode {
 }
 
 export class NegationProp extends SyntaxTreeNode {
-  prop!: Prop;
+  prop!: AstProp;
   
   static rule = new Caten(
     token('!'),
@@ -155,8 +155,8 @@ export class NegationProp extends SyntaxTreeNode {
 }
 
 export class AndProp extends SyntaxTreeNode {
-  left!: Prop;
-  right!: Prop;
+  left!: AstProp;
+  right!: AstProp;
   
   static rule = new Caten(
     new Match( false, 'left', AndPropLadder ),
@@ -166,8 +166,8 @@ export class AndProp extends SyntaxTreeNode {
 }
 
 export class OrProp extends SyntaxTreeNode {
-  left!: Prop;
-  right!: Prop;
+  left!: AstProp;
+  right!: AstProp;
   
   static rule = new Caten(
     new Match( false, 'left', OrPropLadder ),
@@ -177,7 +177,7 @@ export class OrProp extends SyntaxTreeNode {
 }
 
 export class ImplicationProp extends SyntaxTreeNode {
-  props!: Prop[];
+  props!: AstProp[];
   ops!: Token<'->'> | Token<'<-'> | Token<'<->'>;
   
   static rule = new Repeat(

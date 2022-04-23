@@ -120,11 +120,11 @@ class Main {
         let src;
         
         try {
-          src = await promises.readFile(this.projectRoot + fsPath + '/-.maslo', 'utf8');
+          src = await promises.readFile(this.projectRoot + fsPath + '/-.ytl', 'utf8');
         } catch (e) {console.log('asdf')
           if (e.code !== 'ENOENT') throw e;
           
-          exit(`File \`${fsPath}/-.maslo\` does not exist.`);
+          exit(`File \`${fsPath}/-.ytl\` does not exist.`);
         }
         
         fulfillFn();
